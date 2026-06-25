@@ -1,7 +1,12 @@
 export default async function handler(req, res) {
+    // Determine if we are fetching a specific playlist or the general channel
+    const playlistId = req.query.playlist_id;
     const channelId = 'UCGbsxJ1S220H1T1SjM2o18g';
-    const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-
+    
+    let rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+    if (playlistId) {
+        rssUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
+    }
     try {
         const response = await fetch(rssUrl);
         if (!response.ok) {

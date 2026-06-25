@@ -2,7 +2,33 @@ const JIKAN_API = 'https://api.jikan.moe/v4';
 const NEWS_RSS = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.animenewsnetwork.com/news/rss.xml';
 const MUSE_ASIA_RSS = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=UCGbsxJ1S220H1T1SjM2o18g';
 
+// ---- CATALOG DATA ----
+const ANIME_CATALOG = [
+    {
+        id: 'spyxfamily',
+        title: 'Spy x Family',
+        desc: 'A spy on an undercover mission gets married and adopts a child as part of his cover. His wife and daughter have secrets of their own, and all three must strive to keep together.',
+        cover: 'https://cdn.myanimelist.net/images/anime/1441/122795l.jpg',
+        seasons: [
+            { name: 'Season 1 Part 1', playlistId: 'PLwLSw1_eDZl1wGMYg5oB3uEns0CZNl6sI' },
+            { name: 'Season 1 Part 2', playlistId: 'PLwLSw1_eDZl0-34X3d34U9Yx-jIigE80X' },
+            { name: 'Season 2', playlistId: 'PLwLSw1_eDZl1Z6x1nK7j1Tf3tX_HnUIf0' }
+        ]
+    },
+    {
+        id: 'mushokutensei',
+        title: 'Mushoku Tensei',
+        desc: 'When a 34-year-old underachiever gets run over by a bus, his story doesn\'t end there. Reincarnated in a new world as an infant, Rudy will seize every opportunity to live the life he\'s always wanted.',
+        cover: 'https://cdn.myanimelist.net/images/anime/1530/117776l.jpg',
+        seasons: [
+            { name: 'Season 1', playlistId: 'PLwLSw1_eDZl26t1o97mG9k1d0JgZkHttm' },
+            { name: 'Season 2', playlistId: 'PLwLSw1_eDZl2X2t5iN_n9T1uA9G5f1S5n' }
+        ]
+    }
+];
+
 // DOM Elements
+const catalogGrid = document.getElementById('catalog-grid');
 const trailersGrid = document.getElementById('trailers-grid');
 const watchGrid = document.getElementById('watch-grid');
 const bookmarksGrid = document.getElementById('bookmarks-grid');
@@ -11,6 +37,15 @@ const newsGrid = document.getElementById('news-grid');
 const modal = document.getElementById('video-modal');
 const youtubePlayer = document.getElementById('youtube-player');
 const closeBtn = document.querySelector('.close-btn');
+
+// Series Modal Elements
+const seriesModal = document.getElementById('series-modal');
+const closeSeriesBtn = document.querySelector('.close-series-btn');
+const seriesTitleText = document.getElementById('series-title-text');
+const seriesDescText = document.getElementById('series-desc-text');
+const seriesCover = document.getElementById('series-cover');
+const seasonSelector = document.getElementById('season-selector');
+const episodesList = document.getElementById('episodes-list');
 
 // Featured Trailer Elements
 const featuredTitle = document.getElementById('featured-trailer-title');
@@ -22,6 +57,8 @@ let bookmarks = JSON.parse(localStorage.getItem('animePulseBookmarks')) || [];
 // Initialize
 async function init() {
     renderBookmarks();
+    renderCatalog();
+
     await Promise.all([
         fetchTrailers(),
         fetchWatchFree(),
@@ -96,6 +133,81 @@ function createVideoCard(item) {
     btn.onclick = (e) => toggleBookmark(e, item);
     
     return card;
+}
+
+// ---- CATALOG LOGIC ----
+function renderCatalog() {
+    if (!catalogGrid) return;
+    catalogGrid.innerHTML = '';
+    
+    ANIME_CATALOG.forEach(series => {
+        const card = document.createElement('div');
+        card.className = 'series-card';
+        card.innerHTML = `
+            <img src="${series.cover}" alt="${series.title}" loading="lazy" style="border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+            <h3 style="margin-top: 0.5rem; font-size: 1.1rem;">${series.title}</h3>
+        `;
+        card.onclick = () => openSeriesModal(series);
+        catalogGrid.appendChild(card);
+    });
+}
+
+function openSeriesModal(series) {
+    if (!seriesModal) return;
+    
+    seriesTitleText.textContent = series.title;
+    seriesDescText.textContent = series.desc;
+    seriesCover.src = series.cover;
+    
+    // Render season tabs
+    seasonSelector.innerHTML = '';
+    series.seasons.forEach((season, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'season-btn' + (index === 0 ? ' active' : '');
+        btn.textContent = season.name;
+        btn.onclick = () => {
+            // Update active tab
+            document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // Load episodes
+            loadSeason(season.playlistId, series.title);
+        };
+        seasonSelector.appendChild(btn);
+    });
+    
+    // Load first season by default
+    if (series.seasons.length > 0) {
+        loadSeason(series.seasons[0].playlistId, series.title);
+    }
+    
+    seriesModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+async function loadSeason(playlistId, seriesTitle) {
+    episodesList.innerHTML = '<p>Loading episodes...</p>';
+    try {
+        const response = await fetch(`/api/muse?playlist_id=${playlistId}`);
+        const data = await response.json();
+        
+        episodesList.innerHTML = '';
+        if (data && data.items && data.items.length > 0) {
+            data.items.forEach(item => {
+                const videoData = {
+                    id: item.id,
+                    title: item.title,
+                    meta: seriesTitle,
+                    thumb: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`
+                };
+                episodesList.appendChild(createVideoCard(videoData));
+            });
+        } else {
+            episodesList.innerHTML = '<p>No episodes found for this season.</p>';
+        }
+    } catch (err) {
+        console.error(err);
+        episodesList.innerHTML = '<p>Failed to load episodes.</p>';
+    }
 }
 
 // ---- FETCHING LOGIC ----
@@ -220,7 +332,8 @@ function renderNews(newsItems) {
 // Modal Logic
 function openModal(youtubeId) {
     if (!youtubeId) return;
-    youtubePlayer.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1`;
+    // Added controls=1 and cc_load_policy=1 per user request
+    youtubePlayer.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&controls=1&cc_load_policy=1`;
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
@@ -232,15 +345,34 @@ function closeModal() {
 }
 
 if(closeBtn) closeBtn.onclick = closeModal;
+if(closeSeriesBtn) {
+    closeSeriesBtn.onclick = () => {
+        seriesModal.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+}
 if(modal) {
     modal.onclick = (e) => {
         if (e.target === modal) closeModal();
     };
 }
+if(seriesModal) {
+    seriesModal.onclick = (e) => {
+        if (e.target === seriesModal) {
+            seriesModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    };
+}
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
-        closeModal();
+    if (e.key === 'Escape') {
+        if (modal && modal.classList.contains('active')) {
+            closeModal();
+        } else if (seriesModal && seriesModal.classList.contains('active')) {
+            seriesModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     }
 });
 
