@@ -154,7 +154,8 @@ function renderTrailers(trailers) {
 async function fetchWatchFree() {
     if (!watchGrid) return;
     try {
-        const response = await fetch(MUSE_ASIA_RSS);
+        // We use the local Vercel serverless function to bypass public API blocks
+        const response = await fetch('/api/muse');
         const data = await response.json();
         
         if (data && data.items) {
@@ -162,15 +163,11 @@ async function fetchWatchFree() {
             // Render top 12 videos from Muse Asia
             const videos = data.items.slice(0, 12);
             videos.forEach(item => {
-                // rss2json returns the youtube link like https://www.youtube.com/watch?v=xxxxx
-                const ytidMatch = item.link.match(/v=([^&]+)/);
-                const ytId = ytidMatch ? ytidMatch[1] : (item.guid.includes(':') ? item.guid.split(':')[2] : item.guid); 
-                
                 const videoData = {
-                    id: ytId,
+                    id: item.id,
                     title: item.title,
                     meta: "Muse Asia Full Episode",
-                    thumb: item.thumbnail || `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`
+                    thumb: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`
                 };
                 watchGrid.appendChild(createVideoCard(videoData));
             });
