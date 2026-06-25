@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimePulse - Latest News & Trailers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">Anime<span>Pulse</span></div>
+        <nav>
+            <a href="#hero">Featured</a>
+            <a href="#trailers">Trailers</a>
+            <a href="#news">News</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="hero">
+            <div class="hero-content">
+                <span class="badge">Trending Now</span>
+                <h1 id="hero-title">Loading Featured Anime...</h1>
+                <p id="hero-desc">Discover the most anticipated upcoming series and movies.</p>
+                <button id="hero-play-btn" class="btn-primary" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="play-icon"><path d="M8 5v14l11-7z"/></svg> Play Trailer
+                </button>
+            </div>
+            <div class="hero-overlay"></div>
+            <div id="hero-bg" class="hero-bg"></div>
+        </section>
+
+        <div class="content-wrapper">
+            <section id="trailers" class="section-trailers">
+                <div class="section-header">
+                    <h2>Latest Trailers</h2>
+                    <div class="accent-line"></div>
+                </div>
+                <div id="trailers-grid" class="trailers-grid">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                </div>
+            </section>
+
+            <section id="news" class="section-news">
+                <div class="section-header">
+                    <h2>Latest News</h2>
+                    <div class="accent-line"></div>
+                </div>
+                <div id="news-grid" class="news-grid">
+                    <div class="skeleton-news"></div>
+                    <div class="skeleton-news"></div>
+                    <div class="skeleton-news"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- YouTube Video Modal -->
+    <div id="video-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="video-container">
+                <iframe id="youtube-player" width="100%" height="100%" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 AnimePulse. Data provided by Jikan & Anime News Network.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
