@@ -1,7 +1,5 @@
 const JIKAN_API = 'https://api.jikan.moe/v4';
-const NEWS_RSS = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.animenewsnetwork.com/news/rss.xml';
 const MUSE_ASIA_RSS = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=UCGbsxJ1S220H1T1SjM2o18g';
-
 // ---- CATALOG DATA ----
 const ANIME_CATALOG = [
     {
@@ -33,10 +31,14 @@ const trailersGrid = document.getElementById('trailers-grid');
 const watchGrid = document.getElementById('watch-grid');
 const bookmarksGrid = document.getElementById('bookmarks-grid');
 const emptyBookmarksText = document.getElementById('empty-bookmarks');
-const newsGrid = document.getElementById('news-grid');
 const modal = document.getElementById('video-modal');
 const youtubePlayer = document.getElementById('youtube-player');
 const closeBtn = document.querySelector('.close-btn');
+
+// Video Context Controls
+const videoContextControls = document.getElementById('video-context-controls');
+const btnNextEp = document.getElementById('btn-next-ep');
+const btnBackAnime = document.getElementById('btn-back-anime');
 
 // Series Modal Elements
 const seriesModal = document.getElementById('series-modal');
@@ -53,6 +55,7 @@ const featuredPlayer = document.getElementById('featured-youtube-player');
 
 // State
 let bookmarks = JSON.parse(localStorage.getItem('animePulseBookmarks')) || [];
+let currentVideoContext = null;
 
 // Initialize
 async function init() {
@@ -61,8 +64,7 @@ async function init() {
 
     await Promise.all([
         fetchTrailers(),
-        fetchWatchFree(),
-        fetchNews()
+        fetchWatchFree()
     ]);
 }
 
@@ -102,7 +104,7 @@ function renderBookmarks() {
     });
 }
 
-function createVideoCard(item) {
+function createVideoCard(item, context = null) {
     const card = document.createElement('div');
     card.className = 'trailer-card';
     
@@ -126,7 +128,7 @@ function createVideoCard(item) {
     `;
     
     // Play video on click
-    card.onclick = () => openModal(item.id);
+    card.onclick = () => openModal(item.id, context);
     
     // Handle bookmark click
     const btn = card.querySelector('.bookmark-btn');
@@ -177,14 +179,14 @@ function openSeriesModal(series) {
     
     // Load first season by default
     if (series.seasons.length > 0) {
-        loadSeason(series.seasons[0].playlistId, series.title);
+        loadSeason(series.seasons[0].playlistId, series);
     }
     
     seriesModal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
-async function loadSeason(playlistId, seriesTitle) {
+async function loadSeason(playlistId, series) {
     episodesList.innerHTML = '<p>Loading episodes...</p>';
     try {
         const response = await fetch(`/api/muse?playlist_id=${playlistId}`);
@@ -192,14 +194,26 @@ async function loadSeason(playlistId, seriesTitle) {
         
         episodesList.innerHTML = '';
         if (data && data.items && data.items.length > 0) {
-            data.items.forEach(item => {
-                const videoData = {
-                    id: item.id,
-                    title: item.title,
-                    meta: seriesTitle,
-                    thumb: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`
+            // We reverse the array because YouTube playlist RSS is usually newest first,
+            // but for episodes we usually want to watch oldest (Ep 1) first.
+            // If the items are already in correct order, remove .reverse(). For Muse, they are often uploaded in order.
+            // Let's assume the API returns them in the order we want to display (usually Ep 1, Ep 2...).
+            // We'll just map them.
+            
+            const episodes = data.items.map(item => ({
+                id: item.id,
+                title: item.title,
+                meta: series.title,
+                thumb: `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`
+            }));
+
+            episodes.forEach((videoData, index) => {
+                const context = {
+                    series: series,
+                    episodes: episodes,
+                    currentIndex: index
                 };
-                episodesList.appendChild(createVideoCard(videoData));
+                episodesList.appendChild(createVideoCard(videoData, context));
             });
         } else {
             episodesList.innerHTML = '<p>No episodes found for this season.</p>';
@@ -290,48 +304,25 @@ async function fetchWatchFree() {
     }
 }
 
-async function fetchNews() {
-    if(!newsGrid) return;
-    try {
-        const response = await fetch(NEWS_RSS);
-        const data = await response.json();
-        
-        if (data && data.items) {
-            renderNews(data.items.slice(0, 9));
-        }
-    } catch (error) {
-        console.error("Error fetching news:", error);
-        newsGrid.innerHTML = '<p>Failed to load news. Please try again later.</p>';
-    }
-}
-
-function renderNews(newsItems) {
-    newsGrid.innerHTML = '';
-    newsItems.forEach(item => {
-        const date = new Date(item.pubDate).toLocaleDateString('en-US', {
-            year: 'numeric', month: 'short', day: 'numeric'
-        });
-        
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = item.description;
-        const textDesc = tempDiv.textContent || tempDiv.innerText || "";
-        
-        const card = document.createElement('a');
-        card.href = item.link;
-        card.target = "_blank";
-        card.className = 'news-card';
-        card.innerHTML = `
-            <span class="news-date">${date}</span>
-            <h3 class="news-title">${item.title}</h3>
-            <p class="news-desc">${textDesc}</p>
-        `;
-        newsGrid.appendChild(card);
-    });
-}
-
 // Modal Logic
-function openModal(youtubeId) {
+function openModal(youtubeId, context = null) {
     if (!youtubeId) return;
+    
+    currentVideoContext = context;
+    
+    if (currentVideoContext && currentVideoContext.series) {
+        videoContextControls.style.display = 'flex';
+        
+        // Disable "Next" button if at the end of the episode list
+        if (currentVideoContext.currentIndex >= currentVideoContext.episodes.length - 1) {
+            btnNextEp.disabled = true;
+        } else {
+            btnNextEp.disabled = false;
+        }
+    } else {
+        videoContextControls.style.display = 'none';
+    }
+
     // Added controls=1 and cc_load_policy=1 per user request
     youtubePlayer.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&controls=1&cc_load_policy=1`;
     modal.classList.add('active');
@@ -342,6 +333,31 @@ function closeModal() {
     modal.classList.remove('active');
     youtubePlayer.src = '';
     document.body.style.overflow = '';
+}
+
+if (btnNextEp) {
+    btnNextEp.onclick = () => {
+        if (!currentVideoContext) return;
+        const nextIndex = currentVideoContext.currentIndex + 1;
+        if (nextIndex < currentVideoContext.episodes.length) {
+            const nextVideo = currentVideoContext.episodes[nextIndex];
+            // Re-open modal with new video and updated context
+            openModal(nextVideo.id, {
+                series: currentVideoContext.series,
+                episodes: currentVideoContext.episodes,
+                currentIndex: nextIndex
+            });
+        }
+    };
+}
+
+if (btnBackAnime) {
+    btnBackAnime.onclick = () => {
+        if (!currentVideoContext) return;
+        const series = currentVideoContext.series;
+        closeModal();
+        openSeriesModal(series);
+    };
 }
 
 if(closeBtn) closeBtn.onclick = closeModal;

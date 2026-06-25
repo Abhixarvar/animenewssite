@@ -511,3 +511,44 @@ footer {
     object-fit: cover;
     width: 100%;
 }
+
+/* Contextual Video Controls */
+.video-controls-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    border-top: 1px solid var(--glass-border);
+}
+
+.context-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.context-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.context-btn.primary {
+    background: var(--accent-purple);
+    border-color: var(--accent-purple);
+}
+
+.context-btn.primary:hover {
+    background: #7c3aed;
+    transform: translateX(3px);
+}
+
+.context-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
