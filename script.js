@@ -14,6 +14,35 @@ const ANIME_CATALOG = [
         ]
     },
     {
+        id: 'onepunchman',
+        title: 'One Punch Man',
+        desc: 'Saitama is a hero who only became a hero for fun. After three years of "special training," he\'s become so strong that he\'s practically invincible. In fact, he\'s too strong—even his mightiest opponents are taken out with a single punch.',
+        cover: 'https://cdn.myanimelist.net/images/anime/12/76049l.jpg',
+        seasons: [
+            { name: 'Seasons 1 & 2', playlistId: 'PLwLSw1_eDZl2XdtLhB9NG2Ch050jWFm9G' }
+        ]
+    },
+    {
+        id: 'slime',
+        title: 'That Time I Got Reincarnated as a Slime',
+        desc: 'Corporate worker Mikami Satoru is stabbed by a random killer, and is reborn to an alternate world. But he turns out to be reborn a slime! Thrown into this new world, he begins his quest to create a world that\'s welcoming to all races.',
+        cover: 'https://cdn.myanimelist.net/images/anime/1171/109222l.jpg',
+        seasons: [
+            { name: 'Season 1', playlistId: 'PLwLSw1_eDZl3_YNRvXA7O' }
+        ]
+    },
+    {
+        id: 'mobpsycho',
+        title: 'Mob Psycho 100',
+        desc: 'Eighth-grader Shigeo "Mob" Kageyama has tapped into his inner wellspring of psychic prowess at a young age. But the power quickly proves to be a liability when he realizes the potential danger in his skills.',
+        cover: 'https://cdn.myanimelist.net/images/anime/8/80356l.jpg',
+        seasons: [
+            { name: 'Season 1', playlistId: 'PLwLSw1_eDZl1pvIv1fBd3oKkP3XEQpT_G' },
+            { name: 'Season 2', playlistId: 'PLwLSw1_eDZl2pVrny1PabF7J3AeOozZUS' },
+            { name: 'Season 3', playlistId: 'PLwLSw1_eDZl2VGzbi1867Ucw0vJzRfXYU' }
+        ]
+    },
+    {
         id: 'mushokutensei',
         title: 'Mushoku Tensei',
         desc: 'When a 34-year-old underachiever gets run over by a bus, his story doesn\'t end there. Reincarnated in a new world as an infant, Rudy will seize every opportunity to live the life he\'s always wanted.',
