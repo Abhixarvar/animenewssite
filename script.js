@@ -8,11 +8,9 @@ const modal = document.getElementById('video-modal');
 const youtubePlayer = document.getElementById('youtube-player');
 const closeBtn = document.querySelector('.close-btn');
 
-// Hero Elements
-const heroBg = document.getElementById('hero-bg');
-const heroTitle = document.getElementById('hero-title');
-const heroDesc = document.getElementById('hero-desc');
-const heroPlayBtn = document.getElementById('hero-play-btn');
+// Featured Trailer Elements
+const featuredTitle = document.getElementById('featured-trailer-title');
+const featuredPlayer = document.getElementById('featured-youtube-player');
 
 // Initialize
 async function init() {
@@ -34,11 +32,11 @@ async function fetchTrailers() {
                     ids.add(item.entry.mal_id);
                     uniqueAnime.push(item);
                 }
-                if (uniqueAnime.length >= 13) break; // Get top 13 (1 for hero, 12 for grid)
+                if (uniqueAnime.length >= 13) break; // Get top 13 (1 for featured, 12 for grid)
             }
 
             if (uniqueAnime.length > 0) {
-                setHero(uniqueAnime[0]); // Set 0 as Hero
+                setFeaturedTrailer(uniqueAnime[0]); // Set 0 as Featured
                 renderTrailers(uniqueAnime.slice(1)); // Render 1 to 12 in grid
             } else {
                 trailersGrid.innerHTML = '<p>No trailers available at the moment.</p>';
@@ -50,16 +48,14 @@ async function fetchTrailers() {
     }
 }
 
-function setHero(item) {
-    heroTitle.textContent = item.entry.title;
-    heroDesc.textContent = item.title; // Jikan promo title usually says "PV 1" or something
-    
-    // Try to get maximum resolution, fallback to large
-    const hqImage = item.trailer.images.maximum_image_url || item.trailer.images.large_image_url || item.entry.images.jpg.large_image_url;
-    heroBg.style.backgroundImage = `url('${hqImage}')`;
-    
-    heroPlayBtn.style.display = 'flex';
-    heroPlayBtn.onclick = () => openModal(item.trailer.youtube_id);
+function setFeaturedTrailer(item) {
+    if (featuredTitle && item.entry.title) {
+        featuredTitle.textContent = "Latest Trailer: " + item.entry.title;
+    }
+    if (featuredPlayer && item.trailer.youtube_id) {
+        // Autoplay and mute so it starts playing automatically when the site loads
+        featuredPlayer.src = `https://www.youtube.com/embed/${item.trailer.youtube_id}?autoplay=1&mute=1`;
+    }
 }
 
 function renderTrailers(trailers) {
