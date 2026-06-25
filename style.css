@@ -389,3 +389,40 @@ footer {
     .hero h1 { font-size: 2.5rem; }
     nav a { display: none; }
 }
+
+/* Bookmark Button */
+.bookmark-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.bookmark-btn:hover {
+    background: var(--accent-purple);
+    transform: scale(1.1);
+}
+
+.bookmark-btn.active {
+    background: var(--accent-purple);
+    color: #fff;
+    border-color: var(--accent-purple);
+}
+
+.bookmark-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+

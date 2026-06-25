@@ -11,9 +11,10 @@
     <header class="navbar">
         <div class="logo">Anime<span>Pulse</span></div>
         <nav>
-            <a href="#hero">Featured</a>
+            <a href="#watch">Watch</a>
             <a href="#trailers">Trailers</a>
             <a href="#news">News</a>
+            <a href="#bookmarks" style="color: var(--accent-purple);">Bookmarks <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align: middle; margin-top:-2px;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></a>
         </nav>
     </header>
 
@@ -30,6 +31,29 @@
                 </div>
                 <div class="featured-video-container" style="border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6); aspect-ratio: 16/9; background: #000;">
                     <iframe id="featured-youtube-player" width="100%" height="100%" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+            </section>
+
+            <section id="watch" class="section-trailers" style="margin-bottom: 5rem;">
+                <div class="section-header">
+                    <h2>Watch Free (Muse Asia)</h2>
+                    <div class="accent-line"></div>
+                </div>
+                <div id="watch-grid" class="trailers-grid">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                </div>
+            </section>
+
+            <section id="bookmarks" class="section-trailers" style="margin-bottom: 5rem;">
+                <div class="section-header">
+                    <h2>My Bookmarks</h2>
+                    <div class="accent-line"></div>
+                </div>
+                <div id="bookmarks-grid" class="trailers-grid" style="min-height: 100px;">
+                    <p id="empty-bookmarks" style="grid-column: 1 / -1; color: var(--text-muted);">You haven't bookmarked any videos yet.</p>
                 </div>
             </section>
 
